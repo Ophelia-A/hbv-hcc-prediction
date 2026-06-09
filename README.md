@@ -8,8 +8,8 @@ to predict Hepatocellular Carcinoma (HCC) progression in Hepatitis B Virus (HBV)
 infected patients using gene expression data.
 
 ## Datasets
-- GSE14520 The primary dataset (HBV-HCC, liver tissue)
-- GSE236281 This will be used for cross-cohort validation (Nigerian cohort, PBMC)
+- GSE14520 : The primary dataset (HBV-HCC, liver tissue)
+- GSE236281 : Will be used for cross-cohort validation (Nigerian cohort, PBMC)
 
 ## Project Structure
 - `data/`: Raw and processed datasets
