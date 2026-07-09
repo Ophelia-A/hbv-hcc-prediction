@@ -1,0 +1,4 @@
+Model,Accuracy,Precision,Recall,F1-score,AUC-ROC
+SVM,0.9787,1.0,0.9565,0.9778,0.9982
+Random Forest,0.9681,1.0,0.9348,0.9663,0.9962
+XGBoost,0.9787,1.0,0.9565,0.9778,0.9941
