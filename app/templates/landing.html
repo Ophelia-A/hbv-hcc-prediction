@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}HBV-HCC Predictor: Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Early Prediction of HBV-Related Liver Cancer from Gene Expression</h1>
+  <p class="hero-sub">
+    This tool uses a machine learning model trained on microarray gene expression
+    data to classify liver tissue samples as tumor or non-tumor, based on 71
+    genes selected through LASSO feature selection.
+  </p>
+  <a href="/predict" class="cta">Start Prediction</a>
+</section>
+{% endblock %}

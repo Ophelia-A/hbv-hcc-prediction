@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}HBV-HCC Predictor — Results{% endblock %}
+
+{% block content %}
+<section class="results-page">
+  <h1>Prediction Results</h1>
+
+  <div class="results-grid">
+
+    <div class="result-box">
+      <span class="box-label">Prediction</span>
+      <span class="box-value prediction-{{ label|lower|replace(' ', '-') }}">{{ label }}</span>
+    </div>
+
+    <div class="result-box">
+      <span class="box-label">Confidence</span>
+      <span class="box-value">{{ confidence }}</span>
+    </div>
+
+    <div class="result-box result-box-wide">
+      <span class="box-label">Gene Expression Profile (71 probes)</span>
+      <div class="probe-strip probe-strip-results" aria-hidden="true">
+        {% for level in probe_strip %}
+          <div class="tick tick-{{ level }}"></div>
+        {% endfor %}
+      </div>
+      <div class="probe-legend">
+        <span><i class="legend-dot legend-low"></i> Below average</span>
+        <span><i class="legend-dot legend-high"></i> Above average</span>
+      </div>
+    </div>
+
+    <div class="result-box result-box-placeholder">
+      <span class="box-label">Top Contributing Genes</span>
+      <span class="placeholder-text">SHAP interpretability coming soon</span>
+    </div>
+
+  </div>
+
+  <button class="cta cta-disabled" disabled title="Coming soon">Download PDF Report</button>
+
+</section>
+{% endblock %}
