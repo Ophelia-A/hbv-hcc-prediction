@@ -31,9 +31,18 @@
       </div>
     </div>
 
-    <div class="result-box result-box-placeholder">
+   <div class="result-box result-box-wide">
       <span class="box-label">Top Contributing Genes</span>
-      <span class="placeholder-text">SHAP interpretability coming soon</span>
+      <ul class="gene-list">
+        {% for gene in top_genes %}
+          <li class="gene-item">
+            <span class="gene-probe">{{ gene.probe }}</span>
+            <span class="gene-direction gene-{{ 'high' if 'Tumor' in gene.direction and 'Non' not in gene.direction else 'low' }}">
+              {{ gene.direction }}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
   </div>

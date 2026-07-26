@@ -257,11 +257,11 @@ input[type="file"] {
   margin: var(--space-sm) 0;
 }
 
-.tick-low {
+.probe-strip .tick-low {
   background: var(--expr-low);
 }
 
-.tick-high {
+.probe-strip .tick-high {
   background: var(--expr-high);
 }
 
@@ -306,3 +306,29 @@ input[type="file"] {
 .cta-disabled:hover {
   background: var(--border);
 }
+
+.gene-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-sm) 0 0 0;
+}
+
+.gene-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.gene-item:last-child {
+  border-bottom: none;
+}
+
+.gene-probe {
+  font-weight: 500;
+}
+
+.gene-high { color: var(--expr-high); }
+.gene-low { color: var(--expr-low); }
