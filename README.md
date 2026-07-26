@@ -41,5 +41,7 @@ probes) and receive:
 - A visual "probe strip" showing this sample's expression levels across all 71 genes, 
   relative to training-set averages
 - Top contributing genes for this specific prediction, via SHAP (TreeExplainer)
-
 To run locally:
+cd app
+python app.py
+Then open `http://127.0.0.1:5000` in a browser.
