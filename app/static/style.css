@@ -332,3 +332,29 @@ input[type="file"] {
 
 .gene-high { color: var(--expr-high); }
 .gene-low { color: var(--expr-low); }
+
+.sample-data-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  font-size: 0.9rem;
+}
+
+.sample-note {
+  color: var(--ink-soft);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--teal);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.link-btn:hover {
+  color: var(--teal-dark);
+}

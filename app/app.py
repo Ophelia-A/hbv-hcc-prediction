@@ -1,8 +1,14 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory, session, send_file
 import joblib
 import pandas as pd
 import os
 import shap
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from datetime import datetime
+
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'dev-key-change-later'
@@ -65,10 +71,17 @@ def create_app():
                 {
                     "probe": probe,
                     "direction": "toward Tumor" if val > 0 else "toward Non-Tumor",
-                    "magnitude": abs(val)
+                    "magnitude": float(abs(val))
                 }
                 for probe, val in top_genes
             ]
+
+            # Stash results in session for PDF export
+            session['last_result'] = {
+                'label': label,
+                'confidence': f"{confidence:.1%}",
+                'top_genes': top_genes_display
+            }
 
             return render_template(
                 'results.html',
@@ -79,7 +92,116 @@ def create_app():
             )
 
         return render_template('predict.html')
+    @app.route('/static-sample')
+    def static_sample():
+        sample_dir = os.path.join(BASE_DIR, 'sample_data')
+        return send_from_directory(sample_dir, 'sample_input.csv')
+    @app.route('/download-pdf')
+    def download_pdf():
+        result = session.get('last_result')
+        if not result:
+            return "No recent prediction found. Please run a prediction first."
 
+        from reportlab.lib.colors import HexColor
+
+        # Design tokens, matching the web app
+        INK = HexColor('#0F2733')
+        INK_SOFT = HexColor('#3E5C66')
+        TEAL = HexColor('#0F766E')
+        CORAL = HexColor('#E4572E')
+        BORDER = HexColor('#D8E0E2')
+        PAPER_WHITE = HexColor('#FFFFFF')
+
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        prediction_color = CORAL if result['label'] == 'Tumor' else TEAL
+
+        # --- Header bar ---
+        c.setFillColor(TEAL)
+        c.rect(0, height - 1.3 * inch, width, 1.3 * inch, fill=1, stroke=0)
+
+        c.setFillColor(PAPER_WHITE)
+        c.setFont("Helvetica-Bold", 20)
+        c.drawString(1 * inch, height - 0.7 * inch, "HBV-HCC Prediction Report")
+
+        c.setFont("Helvetica", 9)
+        c.drawString(1 * inch, height - 1.0 * inch,
+                     f"Generated {datetime.now().strftime('%B %d, %Y at %H:%M')}")
+
+        y = height - 1.8 * inch
+
+        # --- Prediction section ---
+        c.setFillColor(INK_SOFT)
+        c.setFont("Helvetica", 9)
+        c.drawString(1 * inch, y, "PREDICTION")
+
+        c.setFillColor(prediction_color)
+        c.setFont("Helvetica-Bold", 28)
+        c.drawString(1 * inch, y - 0.45 * inch, result['label'])
+
+        # Confidence, right-aligned in the same row
+        c.setFillColor(INK_SOFT)
+        c.setFont("Helvetica", 9)
+        c.drawString(4.5 * inch, y, "CONFIDENCE")
+
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 28)
+        c.drawString(4.5 * inch, y - 0.45 * inch, result['confidence'])
+
+        y -= 0.9 * inch
+
+        # Divider line
+        c.setStrokeColor(BORDER)
+        c.setLineWidth(1)
+        c.line(1 * inch, y, width - 1 * inch, y)
+
+        y -= 0.45 * inch
+
+        # --- Top contributing genes section ---
+        c.setFillColor(INK_SOFT)
+        c.setFont("Helvetica", 9)
+        c.drawString(1 * inch, y, "TOP CONTRIBUTING GENES")
+
+        y -= 0.35 * inch
+
+        for i, gene in enumerate(result['top_genes']):
+            row_color = TEAL if 'Non-Tumor' in gene['direction'] else CORAL
+
+            c.setFillColor(INK)
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(1.1 * inch, y, gene['probe'])
+
+            c.setFillColor(row_color)
+            c.setFont("Helvetica", 11)
+            c.drawRightString(width - 1.1 * inch, y, gene['direction'])
+
+            y -= 0.15 * inch
+            c.setStrokeColor(BORDER)
+            c.setLineWidth(0.5)
+            c.line(1 * inch, y, width - 1 * inch, y)
+
+            y -= 0.3 * inch
+
+        # --- Footer ---
+        c.setStrokeColor(BORDER)
+        c.line(1 * inch, 0.9 * inch, width - 1 * inch, 0.9 * inch)
+
+        c.setFillColor(INK_SOFT)
+        c.setFont("Helvetica-Oblique", 8)
+        c.drawString(1 * inch, 0.7 * inch,
+                     "Demo only. Not for clinical use.")
+
+        c.save()
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name='hbv_hcc_prediction_report.pdf',
+            mimetype='application/pdf'
+        )
     return app
 
 if __name__ == '__main__':
